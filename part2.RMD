@@ -1,0 +1,85 @@
+---
+title: "Coursera - Statistical Inference Course Project - Part 2"
+author: "Goh LW"
+date: "Sunday, October 25, 2015"
+output: pdf_document
+---
+
+##Overview
+For this part of the project we are going to work on dataset ToothGrowth that is available in R. This data is available through the variable ToothGrowth. 
+
+according to the help file ?ToothGrowth, the dataset is observing the effect of Vitamin C on tooth growth in Guinea Pigs. The ToothGrowth dataset recorded the relation between the growth of teeth of guinea pigs at each of three dose levels of Vitamin C (0.5, 1 and 2 mg) with each of two delivery methods(orange juice and ascorbic acid).
+
+##Load the ToothGrowth data and perform some basic exploratory data analyses 
+```{r load_it_babe, echo=FALSE}   
+library(datasets)
+data(ToothGrowth)
+head(ToothGrowth)
+str(ToothGrowth)
+```
+
+##Provide a basic summary of the data.
+```{r summary_babe, echo=FALSE} 
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+table(ToothGrowth$supp, ToothGrowth$dose)
+summary(ToothGrowth)
+mean(ToothGrowth$len)
+sd(ToothGrowth$len)
+
+library(ggplot2)
+plot <- ggplot(ToothGrowth, 
+               aes(x=factor(dose),y=len,fill=factor(dose)))
+plot + geom_boxplot(notch=F) + facet_grid(.~supp) +
+     scale_x_discrete("Dosage (Milligram)") +   
+     scale_y_continuous("Length of Teeth") +  
+     ggtitle("Effect of Dosage and Supplement Type on Tooth Growth")
+```
+
+From the box plot above we see that the higher the dosage the longer the tooth is. The graph also shows the median of tooth grow for 2mg dosage is near for both supplements.
+
+##Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+
+```{r test_it_babe, echo=FALSE} 
+# T Test by supplemant type
+t.test(len ~ supp, data = ToothGrowth)
+
+# T test by dose level 
+Tooth.dose0.5_1.0 <- subset(ToothGrowth, dose %in% c(0.5, 1.0))
+Tooth.dose0.5_2.0 <- subset(ToothGrowth, dose %in% c(0.5, 2.0))
+Tooth.dose1.0_2.0 <- subset(ToothGrowth, dose %in% c(1.0, 2.0))
+
+t.test(len ~ dose, data = Tooth.dose0.5_1.0)
+t.test(len ~ dose, data = Tooth.dose0.5_2.0)
+t.test(len ~ dose, data = Tooth.dose1.0_2.0)
+
+# T test for supplement by dose level
+Tooth.dose0.5 <- subset(ToothGrowth, dose == 0.5)
+Tooth.dose1.0 <- subset(ToothGrowth, dose == 1.0)
+Tooth.dose2.0 <- subset(ToothGrowth, dose == 2.0)
+
+t.test(len ~ supp, data = Tooth.dose0.5)
+t.test(len ~ supp, data = Tooth.dose1.0)
+t.test(len ~ supp, data = Tooth.dose2.0)
+```
+
+For dose 0.5, the p-value of OJ in comparison to VC is 0.0064. Since it is less than 0.05 (strong presumption against null hypothesis), it indicates that there is a difference between both methods.
+
+For dose 1.0, the p-value of OJ in comparison to VC is 0.001. Since it is less than 0.05 (strong presumption against null hypothesis), it indicates that there is a difference between both methods.
+
+For dose 2.0, the p-value of OJ in comparison to VC is 0.064. Since it is greater than 0.05 (low presumption against null hypothesis), it indicates that there is a not much difference between both methods.
+
+##State your conclusions and the assumptions needed for your conclusions. 
+#Assumption
+
+- Sample is used instead of whole population
+- For t-test regarding tooth length per supplement type, the variances are assumed to be different for the two groups being compared. 
+- For t-tests regarding tooth length per dosage level, the variances are assumed to be equal for the three combinations of the two groups being compared.
+
+#Conclusion
+At 0.5mg and 1mg doses, orange juice causes more growth than the ascorbic acid.
+At 2mg doses, there is no significant difference. 
+
+Also, we see that tooth growth of guinea pigs correlate with the dosage of vitamin C that been given.
+
+
+
